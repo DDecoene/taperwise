@@ -3,6 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: ['main']
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -15,18 +16,35 @@ concurrency:
 
 jobs:
   deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 20 # Update to Node.js version 20
-      - run: echo "VITE_APP_VERSION=$(node -p "require('./package.json').version")" > .env
-      - run: yarn install
-      - run: yarn build
-      - uses: actions/configure-pages@v4
-      - uses: actions/upload-pages-artifact@v3
+          node-version: 20
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build Next.js static export
+        run: |
+          yarn next build
+          yarn next export
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: 'dist'
-      - id: deployment
+          path: out
+
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
