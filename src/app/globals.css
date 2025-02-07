@@ -6,6 +6,39 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+@media print {
+  @page { 
+    margin: 2cm;
+    size: portrait;
+  }
+  
+  /* Hide the UI elements we don't want to print */
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Ensure colors print correctly */
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  
+  /* Make text black for better printing */
+  .print-content {
+    color: black !important;
+  }
+  
+  /* Remove background colors in print */
+  * {
+    background-color: transparent !important;
+  }
+  
+  /* Ensure proper page breaks */
+  .page-break {
+    break-before: page;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

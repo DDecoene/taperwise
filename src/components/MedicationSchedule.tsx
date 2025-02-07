@@ -1,18 +1,19 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Calendar, Clock } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { generateMedicationICS, downloadICSFile } from '@/lib/calendar-utils';
-import { 
-  type MedicationConfig, 
+import React, { useState, useEffect, useCallback } from "react";
+import { Calendar, Clock, Printer } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { generateMedicationICS, downloadICSFile } from "@/lib/calendar-utils";
+import {
+  type MedicationConfig,
   type ScheduleEvent,
-  generateSchedule
-} from '@/lib/taper-calculations';
-import MedicationFormConfig from './MedicationFormConfig';
-import DoseTimesConfig from './DoseTimesConfig';
-import ScheduleDisplay from './ScheduleDisplay';
+  generateSchedule,
+} from "@/lib/taper-calculations";
+import MedicationFormConfig from "./MedicationFormConfig";
+import DoseTimesConfig from "./DoseTimesConfig";
+import ScheduleDisplay from "./ScheduleDisplay";
+import { openPrintWindow } from "@/lib/print-utils";
 
 const DEFAULT_CONFIG: MedicationConfig = {
   name: "Medication",
@@ -23,8 +24,8 @@ const DEFAULT_CONFIG: MedicationConfig = {
   splitDivisions: 4,
   doseTimes: [
     { time: "08:00", initialDose: 10, includeZeroDoses: false, daysPerStep: 7 },
-    { time: "20:00", initialDose: 10, includeZeroDoses: false, daysPerStep: 7 }
-  ]
+    { time: "20:00", initialDose: 10, includeZeroDoses: false, daysPerStep: 7 },
+  ],
 };
 
 const MedicationSchedule = () => {
@@ -46,8 +47,8 @@ const MedicationSchedule = () => {
       const icsContent = generateMedicationICS(schedule);
       downloadICSFile(icsContent, `${config.name.toLowerCase()}-schedule.ics`);
     } catch (error) {
-      console.error('Calendar creation error:', error);
-      alert('Error creating calendar file. Please try again.');
+      console.error("Calendar creation error:", error);
+      alert("Error creating calendar file. Please try again.");
     }
   };
 
@@ -63,41 +64,50 @@ const MedicationSchedule = () => {
         {/* Basic info */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Medication Name:</label>
+            <label className="block text-sm font-medium mb-2">
+              Medication Name:
+            </label>
             <input
               type="text"
               className="w-full border rounded p-2"
               value={config.name}
-              onChange={(e) => setConfig(prev => ({ ...prev, name: e.target.value }))}
+              onChange={(e) =>
+                setConfig((prev) => ({ ...prev, name: e.target.value }))
+              }
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Start Date:</label>
+            <label className="block text-sm font-medium mb-2">
+              Start Date:
+            </label>
             <input
               type="date"
               className="w-full border rounded p-2"
-              value={startDate.toISOString().split('T')[0]}
+              value={startDate.toISOString().split("T")[0]}
               onChange={(e) => setStartDate(new Date(e.target.value))}
             />
           </div>
         </div>
 
         {/* Form configuration */}
-        <MedicationFormConfig 
-          config={config}
-          onConfigChange={setConfig}
-        />
+        <MedicationFormConfig config={config} onConfigChange={setConfig} />
 
         {/* Dose times configuration */}
-        <DoseTimesConfig 
-          config={config}
-          onConfigChange={setConfig}
-        />
+        <DoseTimesConfig config={config} onConfigChange={setConfig} />
 
         {/* Schedule Display */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Detailed Schedule</h3>
+            <Button
+              onClick={() => openPrintWindow(schedule, config)}
+              variant="outline"
+              size="default"
+              className="gap-2"
+            >
+              <Printer className="h-4 w-4" />
+              Print Schedule
+            </Button>
             <Button
               onClick={handleCalendarDownload}
               variant="default"
@@ -108,10 +118,7 @@ const MedicationSchedule = () => {
               Download Calendar
             </Button>
           </div>
-          <ScheduleDisplay 
-            schedule={schedule}
-            config={config}
-          />
+          <ScheduleDisplay schedule={schedule} config={config} />
         </div>
       </CardContent>
     </Card>
