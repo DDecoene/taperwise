@@ -1,4 +1,4 @@
-import MedicationSchedule from "@/components/medication-schedule";
+import MedicationSchedule from "@/components/MedicationSchedule";
 
 export default function Home() {
   return (
